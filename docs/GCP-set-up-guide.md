@@ -189,7 +189,7 @@ Pushing to `main` runs `deploy.yml`:
 Verify:
 
 ```bash
-curl https://<api-service-url>/healthz
+curl https://<api-service-url>/health
 ```
 
 ## 9. Connect the front end

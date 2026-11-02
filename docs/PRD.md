@@ -12,7 +12,7 @@ Because of the rehab pivot, user data is treated as potentially **health data** 
 
 | Milestone | Scope | Status |
 |---|---|---|
-| **M0: Foundation** | Repo scaffold, tooling, Claude Code setup, CI, local Docker Compose, staging on GCP, `/healthz` | planned |
+| **M0: Foundation** | Repo scaffold, tooling, Claude Code setup, CI, local Docker Compose, staging on GCP, `/health` | planned |
 | **M1: Create routine** | Firebase auth, `users`, exercise library seed, `POST /v1/routines`, `GET /v1/routines/{id}`, `GET /v1/exercises` | planned |
 | **M2: Manage routines** | `GET /v1/routines` (RoutineSummary list), `PUT /v1/routines/{id}`, `DELETE /v1/routines/{id}`, Redis caching, rate limiting | planned |
 | **M3: Workouts and goals** | log a workout from a routine, weekly goal (n days/week), domain events + worker | planned |
@@ -29,11 +29,11 @@ Because of the rehab pivot, user data is treated as potentially **health data** 
 
 ## M1 API
 
-All endpoints except `/healthz` require `Authorization: Bearer <Firebase ID token>`.
+All endpoints except `/health` require `Authorization: Bearer <Firebase ID token>`.
 
 | Method | Path | Purpose | Success |
 |---|---|---|---|
-| `GET` | `/healthz` | liveness/readiness | `200` |
+| `GET` | `/health` | liveness: process is up (no auth, no dependency checks). Paths ending in `z` are avoided on Cloud Run | `200` |
 | `GET` | `/v1/exercises` | exercise library for the picker; optional `equipment`, `muscle` filters | `200`, cacheable |
 | `POST` | `/v1/routines` | create a routine | `201` + `Location` |
 | `GET` | `/v1/routines/{id}` | fetch one routine | `200` |
