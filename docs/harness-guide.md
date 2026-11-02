@@ -8,7 +8,7 @@ The "harness" is everything around the code that keeps development fast and safe
 
 Legend: ✅ in place · 🟡 partial · ⬜ planned
 
-Last updated: 2026-10-30. Docs are written; no harness pieces are implemented yet.
+Last updated: 2026-11-02. Docs and the `commit` skill are in place; other harness pieces are not implemented yet.
 
 | # | Piece | Location | Status | Purpose |
 |---|---|---|---|---|
@@ -30,6 +30,7 @@ Last updated: 2026-10-30. Docs are written; no harness pieces are implemented ye
 | 16 | Deploy | `.github/workflows/deploy.yml`, `promote.yml` | ⬜ | build → staging; manual promote → prod |
 | 17 | Dependency updates | `.github/dependabot.yml` | ⬜ | weekly PRs for pip + GitHub Actions |
 | 18 | Editor | `.editorconfig`, `.vscode/extensions.json`, `.vscode/settings.json` | ⬜ | consistent formatting, recommended extensions |
+| 19 | Skill: commit | `.claude/skills/commit/SKILL.md` | ✅ | Conventional Commits message; asks permission before every commit |
 
 ---
 
@@ -109,12 +110,13 @@ Configured under `"hooks"` in `.claude/settings.json`; scripts live in `.claude/
 
 The Stop gate runs only fast unit tests; integration and API tests run via `just test` and CI.
 
-## 11–13. Skills
+## 11–13, 19. Skills
 
 | Skill | Trigger | Steps |
 |---|---|---|
 | `new-endpoint` | "add an endpoint for …" | 1) write API test (red) → 2) request/response schemas → 3) service unit tests + service → 4) repository + integration test → 5) router → 6) migration if needed → 7) update OpenAPI snapshot, PRD endpoint table |
 | `db-migration` | "add a column/table …" | autogenerate → review checklist: backward compatible (expand/contract), no table-rewriting `ALTER` on big tables, indexes `CONCURRENTLY`, data migrations separate, downgrade defined → run upgrade/downgrade locally |
+| `commit` ✅ | "commit", `/commit` | inspect diff → stage related files only → draft `type(scope): subject` + why + key bullets → show and **ask permission** → commit |
 | `release` | "prepare a release / promote" | CI green on SHA → migration reviewed → staging smoke passed → changelog → run `promote.yml` |
 
 Built-in commands to use as well: `/code-review` before opening a PR, `/security-review` for auth, data-access, or infra changes.
