@@ -1,0 +1,31 @@
+# Project metadata, dependencies, and tool config (the Python equivalent of package.json).
+[project]
+name = "ooyok-api"
+version = "0.1.0"
+description = "API layer for ooyok, a workout logger pivoting to rehabilitation"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.162.0",
+    "pydantic-settings>=2.16.2",
+    "uvicorn[standard]>=0.54.0",
+]
+
+# Lets uv install this project into .venv as the importable package `ooyok_api`.
+[build-system]
+requires = ["uv_build>=0.13.6,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Treat every `async def test_*` as an asyncio test without needing a decorator on each one.
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.2.0",
+    "pytest-asyncio>=1.4.1.post1",
+    "rust-just>=1.59.0",
+]
