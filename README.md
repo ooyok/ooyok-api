@@ -38,6 +38,22 @@ API at http://localhost:8000, interactive docs at http://localhost:8000/docs.
 
 Development is test-first. See [docs/testing-guide.md](docs/testing-guide.md).
 
+### Editor setup
+
+[`.editorconfig`](.editorconfig) sets the charset, line endings, and indentation for every file type, so your editor writes files correctly as you type. Make sure your editor reads it:
+
+| Editor | Setup |
+|---|---|
+| VS Code / Cursor | install the [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig) extension |
+| JetBrains (PyCharm, etc.) | built in |
+| Neovim 0.9+ | built in |
+| Vim 9.1+ | add `packadd! editorconfig` to your vimrc |
+| Zed | built in |
+| Sublime Text | install the `EditorConfig` package via Package Control |
+| Others | see [editorconfig.org](https://editorconfig.org/#download) |
+
+The pre-commit hooks still fix trailing whitespace and missing final newlines, whatever your editor does.
+
 ## Repository layout
 
 ```

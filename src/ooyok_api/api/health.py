@@ -9,10 +9,12 @@ from ooyok_api.core.config import Settings
 # Not /healthz: Cloud Run reserves some paths ending in "z".
 router = APIRouter(tags=["ops"])
 
+
 # Declare return Type
 class HealthResponse(BaseModel):
     status: Literal["ok"]
     version: str
+
 
 # The dependable/dependency for the dependency injection
 def get_settings(request: Request) -> Settings:

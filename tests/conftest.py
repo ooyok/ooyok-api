@@ -9,6 +9,7 @@ from httpx import ASGITransport, AsyncClient
 from ooyok_api.core.config import Settings
 from ooyok_api.main import create_app
 
+
 @pytest.fixture
 def settings() -> Settings:
     # Explicit values instead of reading the real environment, so tests behave the same everywhere.

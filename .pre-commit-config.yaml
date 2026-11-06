@@ -1,0 +1,61 @@
+# Git hooks (the equivalent of Husky + lint-staged). Installed by `uv run just setup`.
+# Commit stage: fast checks on staged files. Push stage: unit tests.
+# Skip in an emergency with `git commit --no-verify`; CI still runs everything.
+default_install_hook_types: [pre-commit, pre-push]
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+
+  # Blocks commits that contain secrets (API keys, tokens, private keys).
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.0
+    hooks:
+      - id: gitleaks
+
+  # Local hooks run through uv, so they use the versions pinned in uv.lock
+  # and can see the project's dependencies (mypy needs FastAPI/Pydantic types).
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: ruff check
+        # The command that pre-commit should run
+        entry: uv run ruff check --fix
+        # Use the current isolated env say .venv, don't create its own isolated env
+        language: system
+        # What files to process
+        types_or: [python, pyi]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+      - id: mypy
+        name: mypy
+        entry: uv run mypy
+        language: system
+        types_or: [python, pyi]
+        # In default, pre-commit hook pass the staged files(edited files) to mypy
+        # mypy should validate whole project, not just edited files since other files may have invalidate type caused by edited file.
+        pass_filenames: false
+      - id: uv-lock
+        name: uv.lock is up to date
+        entry: uv lock --check
+        language: system
+        files: ^(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+      - id: unit-tests
+        name: unit tests
+        entry: uv run pytest tests/unit -q
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-push]

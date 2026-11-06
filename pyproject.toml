@@ -18,14 +18,64 @@ build-backend = "uv_build"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Fail on typos in marker names instead of silently creating new markers.
+addopts = ["--strict-markers"]
 # Treat every `async def test_*` as an asyncio test without needing a decorator on each one.
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
+# Ruff = linter (ESLint) + formatter (Prettier) in one tool.
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # pycodestyle: style errors and warnings
+    "F",        # pyflakes: unused imports/variables, undefined names
+    "I",        # isort: import ordering
+    "B",        # bugbear: likely bugs (mutable defaults, etc.)
+    "UP",       # pyupgrade: use modern Python syntax
+    "SIM",      # simplify: needlessly complex code
+    "ASYNC",    # blocking calls inside async functions
+    "S",        # bandit: security issues
+    "N",        # pep8-naming
+    "RUF",      # Ruff-specific rules
+]
+ignore = [
+    "E501",     # line length: the formatter wraps code; long comments/URLs are allowed
+    "W191",     # tab indentation: conflicts with the formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+# `assert` is how pytest checks results; bandit flags it only because asserts vanish under `python -O`.
+"tests/**" = ["S101"]
+
+# mypy = type checker (tsc). Python ignores type hints at runtime, so this is what enforces them.
+[tool.mypy]
+strict = true
+# Understands Pydantic models (field types, constructor signatures).
+plugins = ["pydantic.mypy"]
+files = ["src", "tests"]
+
+[tool.coverage.run]
+source = ["ooyok_api"]
+# Also measure if/else branches, not only lines.
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+# Project-wide floor from docs/testing-guide.md.
+fail_under = 85
+
 [dependency-groups]
 dev = [
     "httpx>=0.28.1",
+    "mypy>=2.4.1",
+    "pre-commit>=4.7.0",
     "pytest>=9.2.0",
     "pytest-asyncio>=1.4.1.post1",
+    "pytest-cov>=7.1.0",
+    "ruff>=0.17.3",
     "rust-just>=1.59.0",
 ]

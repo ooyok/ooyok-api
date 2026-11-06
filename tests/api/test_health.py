@@ -1,4 +1,4 @@
-# The client argument is automatically supplied by pytest from the client fixture in conftest.py 
+# The client argument is automatically supplied by pytest from the client fixture in conftest.py
 from httpx import AsyncClient
 
 

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 # From python packages which are designated by empty __init__.py file
-# Anything defined at the module’s top level—classes, functions, constants, and variables can normally be imported by another module
+# Anything defined at the module's top level—classes, functions, constants, and variables can normally be imported by another module
 from ooyok_api.api import health
 from ooyok_api.core.config import Settings
 
