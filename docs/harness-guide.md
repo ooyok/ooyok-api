@@ -32,6 +32,19 @@ Last updated: 2026-11-02. Docs and the `commit` skill are in place; other harnes
 | 18 | Editor | `.editorconfig`, `.vscode/extensions.json`, `.vscode/settings.json` | ⬜ | consistent formatting, recommended extensions |
 | 19 | Skill: commit | `.claude/skills/commit/SKILL.md` | ✅ | Conventional Commits message; asks permission before every commit |
 
+## Deferred work
+
+Decisions made during M0 to do something later. Check this list at the start of each step; delete a row once it's done.
+
+| # | Item | When |
+|---|---|---|
+| D1 | Re-add the `guided-implementation` skill and its status-table row | after the `/health` walking skeleton is complete |
+| D2 | Sync docs with what M0 actually built: status table rows 3, 4, 6, 7–10, 18 (`.editorconfig` only; VS Code settings dropped); §6 push hook runs `uv run pytest tests/unit`; §7 permission syntax and `Edit(...)` deny rules for `.env*`/`*.tfstate*`; §8–10 `guard.sh` covers only merged migrations; commands as `uv run just …` and `just` no longer a separate prerequisite in README/CLAUDE.md; README and CLAUDE.md status lines; testing-guide's folder-based `tests/unit`; PRD M0 status | after the `/health` walking skeleton is complete |
+| D3 | Add allow rules to `.claude/settings.json` for each new tool: `docker compose` (M0 step 4), `terraform plan/fmt/validate` (M0 step 7), `alembic` (M1) | in the step that introduces the tool |
+| D4 | `guard.sh` already blocks edits to `*/migrations/versions/*.py` files that exist on `origin/main`, but stays dormant until migrations exist. Confirm the Alembic versions path matches that pattern, then test the hook live by editing a merged migration (blocked) and creating a new one (allowed). | when Alembic is added (M1) |
+| D5 | Decide whether to fix the snake_case mapping line in `ooyok-doc/brainstrom/workout-log/data/front-schema.md` (the API returns camelCase) | open question for the owner |
+| D6 | Decide whether to uncomment `.vscode/` and `.idea/` in `.gitignore` | open question for the owner |
+
 ---
 
 ## 1. CLAUDE.md
