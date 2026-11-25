@@ -7,7 +7,14 @@
       "Bash(uv run mypy *)",
       "Bash(uv run just *)",
       "Bash(uv sync *)",
-      "Bash(uv lock *)"
+      "Bash(uv lock *)",
+      "Bash(docker version *)",
+      "Bash(docker ps *)",
+      "Bash(docker images *)",
+      "Bash(docker logs *)",
+      "Bash(docker compose ps *)",
+      "Bash(docker compose images *)",
+      "Bash(docker compose logs *)"
     ],
     "ask": [
       "Bash(git commit *)",

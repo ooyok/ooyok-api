@@ -1,0 +1,8 @@
+# Allowlist: send Docker only what the Dockerfile copies. Anything new in the repo
+# (secrets, .venv, tests, docs) stays out of the build unless it's added here.
+*
+!pyproject.toml
+!uv.lock
+!README.md
+!src/
+**/__pycache__

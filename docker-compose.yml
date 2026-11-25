@@ -1,0 +1,22 @@
+# Local containers. For now only the API image; Postgres, Redis, and the emulators join in M1.
+# Start with `uv run just up`, stop with `uv run just down`.
+services:
+  api:
+    # Look for Dockerfile in current directory and build from it
+    build: .
+    # Builds the image and names it ooyok-api with tag local
+    image: ooyok-api:local
+    ports:
+      - "8080:8080"
+    environment:
+      # Taken from the shell running compose, e.g. `APP_VERSION=abc123 docker compose up`.
+      APP_VERSION: ${APP_VERSION:-dev}
+    # Local only: lets `docker compose up --wait` wait until the app answers.
+    # Cloud Run ignores this and uses its own probes.
+    # The slim image has no curl, so the check uses Python.
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s

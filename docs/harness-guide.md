@@ -8,7 +8,7 @@ The "harness" is everything around the code that keeps development fast and safe
 
 Legend: ✅ in place · 🟡 partial · ⬜ planned
 
-Last updated: 2026-11-02. Docs and the `commit` skill are in place; other harness pieces are not implemented yet.
+Last updated: 2026-11-10. M0 steps 1–4 are built; rows not yet updated are tracked in D2.
 
 | # | Piece | Location | Status | Purpose |
 |---|---|---|---|---|
@@ -16,9 +16,9 @@ Last updated: 2026-11-02. Docs and the `commit` skill are in place; other harnes
 | 2 | Docs | `docs/` | ✅ | PRD, architecture, GCP setup, testing, this guide, ADRs |
 | 3 | Python project + tool config | `pyproject.toml`, `uv.lock`, `.python-version` | ⬜ | dependencies; ruff, mypy, pytest, coverage config |
 | 4 | Task runner | `justfile` | ⬜ | one name per common command (`just test`, `just dev`) |
-| 5 | Local stack | `docker-compose.yml` | ⬜ | Postgres, Redis, Pub/Sub emulator, Firebase Auth emulator |
+| 5 | Local stack | `docker-compose.yml` | 🟡 | API image only (`just up`/`down`/`smoke`); Postgres, Redis, Pub/Sub emulator, Firebase Auth emulator join in M1 |
 | 6 | Git hooks | `.pre-commit-config.yaml` | ⬜ | format, lint, types, secrets before commit; unit tests before push |
-| 7 | Claude permissions | `.claude/settings.json` | ⬜ | auto-allow safe commands, block dangerous ones |
+| 7 | Claude permissions | `.claude/settings.json` | ✅ | auto-allow safe commands, block dangerous ones; Docker: read-only commands allowed, everything else asks or runs through `just` recipes |
 | 8 | Hook: format on edit | `.claude/hooks/format.sh` | ⬜ | ruff format + fix on each edited `.py` file |
 | 9 | Hook: protect files | `.claude/hooks/guard.sh` | ⬜ | block edits to `.env*` and merged migrations |
 | 10 | Hook: test gate on stop | `.claude/hooks/test-gate.sh` | ⬜ | unit tests + mypy must pass before Claude ends a turn |
@@ -39,8 +39,8 @@ Decisions made during M0 to do something later. Check this list at the start of 
 | # | Item | When |
 |---|---|---|
 | D1 | Re-add the `guided-implementation` skill and its status-table row | after the `/health` walking skeleton is complete |
-| D2 | Sync docs with what M0 actually built: status table rows 3, 4, 6, 7–10, 18 (`.editorconfig` only; VS Code settings dropped); §6 push hook runs `uv run pytest tests/unit`; §7 permission syntax and `Edit(...)` deny rules for `.env*`/`*.tfstate*`; §8–10 `guard.sh` covers only merged migrations; commands as `uv run just …` and `just` no longer a separate prerequisite in README/CLAUDE.md; README and CLAUDE.md status lines; testing-guide's folder-based `tests/unit`; PRD M0 status | after the `/health` walking skeleton is complete |
-| D3 | Add allow rules to `.claude/settings.json` for each new tool: `docker compose` (M0 step 4), `terraform plan/fmt/validate` (M0 step 7), `alembic` (M1) | in the step that introduces the tool |
+| D2 | Sync docs with what M0 actually built: status table rows 3, 4, 6, 8–10, 18 (`.editorconfig` only; VS Code settings dropped); §6 push hook runs `uv run pytest tests/unit`; §7 permission syntax, `Edit(...)` deny rules for `.env*`/`*.tfstate*`, and Docker allowed read-only only (no `docker compose:*`: `run`/`up` can mount any host folder, so they go through `just` recipes or ask); §8–10 `guard.sh` covers only merged migrations; commands as `uv run just …` and `just` no longer a separate prerequisite in README/CLAUDE.md; README and CLAUDE.md status lines; testing-guide's folder-based `tests/unit`; PRD M0 status | after the `/health` walking skeleton is complete |
+| D3 | Add allow rules to `.claude/settings.json` for each new tool: `terraform plan/fmt/validate` (M0 step 7), `alembic` (M1). Docker done in step 4 (read-only commands only) | in the step that introduces the tool |
 | D4 | `guard.sh` already blocks edits to `*/migrations/versions/*.py` files that exist on `origin/main`, but stays dormant until migrations exist. Confirm the Alembic versions path matches that pattern, then test the hook live by editing a merged migration (blocked) and creating a new one (allowed). | when Alembic is added (M1) |
 | D5 | Decide whether to fix the snake_case mapping line in `ooyok-doc/brainstrom/workout-log/data/front-schema.md` (the API returns camelCase) | open question for the owner |
 | D6 | Decide whether to uncomment `.vscode/` and `.idea/` in `.gitignore` | open question for the owner |
