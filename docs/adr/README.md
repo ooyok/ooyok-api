@@ -10,6 +10,7 @@ One short file per significant decision: what we decided, why, and what it costs
 | [0004](0004-transactional-outbox-for-domain-events.md) | Transactional outbox for domain events | Accepted |
 | [0005](0005-single-region-with-multi-region-path.md) | Single region (`asia-east1`) with a multi-region path | Accepted |
 | [0006](0006-no-api-gateway-edge-via-cloud-armor.md) | No API gateway; edge protection via Cloud Armor | Accepted |
+| [0007](0007-one-uvicorn-worker-per-container.md) | One uvicorn worker per container; scale with Cloud Run instances | Accepted |
 
 ## Template
 

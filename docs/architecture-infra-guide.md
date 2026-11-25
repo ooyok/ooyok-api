@@ -260,7 +260,7 @@ Cloud Run only cold-starts when no warm instance can take a request.
 - Small image (slim base, multi-stage build), no heavy imports at module load, lazy DB/Redis connections.
 
 ### Throughput
-- Async FastAPI, one uvicorn worker per container; Cloud Run `concurrency` ≈ 40–80 per instance (tune with load tests).
+- Async FastAPI, one uvicorn worker per container ([ADR 0007](adr/0007-one-uvicorn-worker-per-container.md)); Cloud Run `concurrency` ≈ 40–80 per instance (tune with load tests).
 - `max-instances` capped so that `max_instances × db_pool_size + jobs < Cloud SQL max_connections`. Pool exhaustion is the first thing that breaks under load.
 - Avoid N+1 queries with `selectinload`; indexes as in §5.
 - Load test with k6 before launch and after major changes (see [testing-guide.md](testing-guide.md#load-tests)).
