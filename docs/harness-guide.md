@@ -8,7 +8,7 @@ The "harness" is everything around the code that keeps development fast and safe
 
 Legend: ✅ in place · 🟡 partial · ⬜ planned
 
-Last updated: 2026-11-10. M0 steps 1–4 are built; rows not yet updated are tracked in D2.
+Last updated: 2026-11-25. M0 steps 1–5 are built; rows not yet updated are tracked in D2.
 
 | # | Piece | Location | Status | Purpose |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@ Last updated: 2026-11-10. M0 steps 1–4 are built; rows not yet updated are tra
 | 12 | Skill: DB migration | `.claude/skills/db-migration/SKILL.md` | ⬜ | create + safety-review an Alembic migration |
 | 13 | Skill: release | `.claude/skills/release/SKILL.md` | ⬜ | pre-deploy / promote checklist |
 | 14 | MCP: local Postgres (optional) | `.mcp.json` | ⬜ | read-only queries against the **local** dev DB |
-| 15 | CI | `.github/workflows/ci.yml` | ⬜ | lint, types, tests, security scans on every PR |
+| 15 | CI | `.github/workflows/ci.yml` | 🟡 | on every PR and push to main: pre-commit hooks (lint, format, types, gitleaks), all tests + coverage, pip-audit (`just audit`), Docker smoke test (`just smoke`). Schemathesis and OpenAPI diff come in D7 |
 | 16 | Deploy | `.github/workflows/deploy.yml`, `promote.yml` | ⬜ | build → staging; manual promote → prod |
 | 17 | Dependency updates | `.github/dependabot.yml` | ⬜ | weekly PRs for pip + GitHub Actions |
 | 18 | Editor | `.editorconfig`, `.vscode/extensions.json`, `.vscode/settings.json` | ⬜ | consistent formatting, recommended extensions |
@@ -44,6 +44,7 @@ Decisions made during M0 to do something later. Check this list at the start of 
 | D4 | `guard.sh` already blocks edits to `*/migrations/versions/*.py` files that exist on `origin/main`, but stays dormant until migrations exist. Confirm the Alembic versions path matches that pattern, then test the hook live by editing a merged migration (blocked) and creating a new one (allowed). | when Alembic is added (M1) |
 | D5 | Decide whether to fix the snake_case mapping line in `ooyok-doc/brainstrom/workout-log/data/front-schema.md` (the API returns camelCase) | open question for the owner |
 | D6 | Decide whether to uncomment `.vscode/` and `.idea/` in `.gitignore` | open question for the owner |
+| D7 | Add the remaining CI gates from `testing-guide.md`: Schemathesis (property-based API tests from the OpenAPI schema) and the OpenAPI diff check (committed `openapi.json` snapshot must match the app; add `just openapi`) | M1, with the first versioned endpoints |
 
 ---
 

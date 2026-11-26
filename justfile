@@ -47,6 +47,25 @@ fix:
 hooks:
     uv run pre-commit run --all-files
 
+# Check runtime dependencies (what ships in the image) for known vulnerabilities
+audit:
+    #!/usr/bin/env bash
+    # Stop on errors:
+    #   -e: exit as soon as any command fails
+    #   -u: treat unset variables as errors instead of empty strings
+    #   -o pipefail: a pipeline fails if any command in it fails; by default only the last
+    #     command counts (e.g. `false | true` succeeds without pipefail)
+    set -euo pipefail
+    # mktemp: create an empty temporary file and print its path.
+    requirements=$(mktemp)
+    # trap … EXIT: delete the file when the script exits, even after an error (like Python's `finally`).
+    trap 'rm -f "$requirements"' EXIT
+    # Write the exact versions from uv.lock, with hashes, to the temp file.
+    uv export --frozen --no-dev --no-emit-project --format requirements-txt --output-file "$requirements" --quiet
+    # uvx runs pip-audit in a throwaway environment, so it isn't a project dependency.
+    # --require-hashes checks the pinned versions as-is, without resolving dependencies again.
+    uvx pip-audit@2.10.1 --requirement "$requirements" --disable-pip --require-hashes --strict
+
 # Build the API image and run it in the background on http://localhost:8080
 # --wait: return only after the healthcheck in docker-compose.yml passes
 up:

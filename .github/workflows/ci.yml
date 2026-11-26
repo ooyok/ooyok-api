@@ -1,0 +1,89 @@
+# CI: every check that must pass before a PR merges. Each job calls the same command you run locally,
+# so a red job can be reproduced with `uv run just <recipe>` or `uv run pre-commit run --all-files`.
+
+# Name displayed on github dashboard
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# The workflow's GITHUB_TOKEN can read the code and nothing else.
+permissions:
+  contents: read
+
+# A new push to the same PR cancels the run still in progress; runs on main always finish.
+concurrency:
+  # define concurrency group as ci-refs/pull/{pr_number}/merge, so different PRs are in different groups
+  group: ci-${{ github.ref }}
+  # only cancel the repeated PR that is in progress
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Third-party actions are pinned to a commit SHA (a tag can be moved to different code); the comment
+# names the release. uv matches the version used locally and in the Dockerfile.
+jobs:
+  # unique identifiers of jobs setting
+  hooks:
+    name: Lint, types, secrets
+    runs-on: ubuntu-latest
+    steps:
+      # Pin the version of the checkout action used by CI.
+      # Fetch the repository's source code and check out the target revision.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # remove credentials after jobs are done
+          persist-credentials: false
+      # install uv, ruff, ty
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          # uv version
+          version: "0.13.6"
+          enable-cache: true
+      - run: uv sync --locked
+      # The same hooks as the local commit stage: file checks, gitleaks, ruff, format, mypy, uv.lock.
+      - run: uv run pre-commit run --all-files --show-diff-on-failure
+
+  test:
+    name: Tests and coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: "0.13.6"
+          enable-cache: true
+      - run: uv sync --locked
+      # All test layers; fails under the coverage floor in pyproject.toml.
+      - run: uv run just test-cov
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: "0.13.6"
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run just audit
+
+  image:
+    name: Docker image smoke test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
+        with:
+          version: "0.13.6"
+          enable-cache: true
+      - run: uv sync --locked
+      # Builds the image, starts it with docker compose, and checks /health inside the container.
+      - run: uv run just smoke
