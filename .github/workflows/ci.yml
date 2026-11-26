@@ -25,24 +25,55 @@ concurrency:
 jobs:
   # unique identifiers of jobs setting
   hooks:
-    name: Lint, types, secrets
+    name: Lint and types
     runs-on: ubuntu-latest
     steps:
       # Pin the version of the checkout action used by CI.
       # Fetch the repository's source code and check out the target revision.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # remove credentials after jobs are done
+          # Don't save the token in .git/config, so later steps can't read it
           persist-credentials: false
-      # install uv, ruff, ty
+      # Install uv; ruff and mypy come from uv.lock via `uv sync`
       - uses: astral-sh/setup-uv@1db35dd8eee11c5894872e0b383ae6c406cf738d # v10.4.0
         with:
           # uv version
           version: "0.13.6"
           enable-cache: true
       - run: uv sync --locked
-      # The same hooks as the local commit stage: file checks, gitleaks, ruff, format, mypy, uv.lock.
+      # The same hooks as the local commit stage: file checks, ruff, format, mypy, uv.lock.
+      # SKIP=gitleaks: that hook scans only staged changes, and nothing is staged in CI;
+      # the `secrets` job scans the history instead.
       - run: uv run pre-commit run --all-files --show-diff-on-failure
+        env:
+          SKIP: gitleaks
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    env:
+      # Keep in sync with the gitleaks rev in .pre-commit-config.yaml.
+      GITLEAKS_VERSION: "8.30.0"
+      # SHA-256 of gitleaks_<version>_linux_x64.tar.gz from the release's checksums file.
+      GITLEAKS_SHA256: "79a3ab579b53f71efd634f3aaf7e04a0fa0cf206b7ed434638d1547a2470a66e"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Full history: a secret added in one commit and deleted in a later one is still in git.
+          fetch-depth: 0
+          persist-credentials: false
+      # Download the release binary and refuse to run it unless it matches the pinned checksum.
+      - name: Install gitleaks
+        run: |
+          cd "$RUNNER_TEMP"
+          tarball="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${tarball}"
+          echo "${GITLEAKS_SHA256}  ${tarball}" | sha256sum --check --strict
+          tar -xzf "$tarball" gitleaks
+          sudo install gitleaks /usr/local/bin/gitleaks
+      # Scan every commit; --redact keeps any secret found out of the CI log.
+      - run: gitleaks git --redact --verbose
 
   test:
     name: Tests and coverage

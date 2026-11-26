@@ -26,7 +26,7 @@ Last updated: 2026-11-25. M0 steps 1–5 are built; rows not yet updated are tra
 | 12 | Skill: DB migration | `.claude/skills/db-migration/SKILL.md` | ⬜ | create + safety-review an Alembic migration |
 | 13 | Skill: release | `.claude/skills/release/SKILL.md` | ⬜ | pre-deploy / promote checklist |
 | 14 | MCP: local Postgres (optional) | `.mcp.json` | ⬜ | read-only queries against the **local** dev DB |
-| 15 | CI | `.github/workflows/ci.yml` | 🟡 | on every PR and push to main: pre-commit hooks (lint, format, types, gitleaks), all tests + coverage, pip-audit (`just audit`), Docker smoke test (`just smoke`). Schemathesis and OpenAPI diff come in D7 |
+| 15 | CI | `.github/workflows/ci.yml` | 🟡 | on every PR and push to main: pre-commit hooks (lint, format, types), gitleaks over the full git history, all tests + coverage, pip-audit (`just audit`), Docker smoke test (`just smoke`). Schemathesis and OpenAPI diff come in D7 |
 | 16 | Deploy | `.github/workflows/deploy.yml`, `promote.yml` | ⬜ | build → staging; manual promote → prod |
 | 17 | Dependency updates | `.github/dependabot.yml` | ⬜ | weekly PRs for pip + GitHub Actions |
 | 18 | Editor | `.editorconfig`, `.vscode/extensions.json`, `.vscode/settings.json` | ⬜ | consistent formatting, recommended extensions |
